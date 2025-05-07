@@ -1,6 +1,22 @@
-SUBJECTS = ["Integral Calculus", "Physics", "Computer Programming", "Art Appreciation",
+SUBJECTS = [
+    "Integral Calculus", "Physics", "Computer Programming", "Art Appreciation",
     "Science, Technology, and Society", "The Contemporary World",
-    "Engineering Drawing", "PE"]
+    "Engineering Drawing", "PE"
+]
+
+def display_grading_scale():
+    print("\nCollege Grading System:")
+    print("------------------------")
+    print("1.00 - Excellent")
+    print("1.25 - Very Good")
+    print("1.50 - Very Good")
+    print("1.75 - Good")
+    print("2.00 - Good")
+    print("2.25 - Satisfactory")
+    print("2.50 - Satisfactory")
+    print("2.75 - Passing")
+    print("3.00 - Passing")
+    print("5.00 - Failed")
 
 def add_student(students, name):
     if name not in students:
@@ -9,49 +25,93 @@ def add_student(students, name):
     else:
         print(f"\nStudent {name} already exists.")
 
-def generate_remarks(grade):
-    if grade >= 95:
-        return "Excellent"
-    elif grade >= 90:
-        return "Very Good"
-    elif grade >= 85:
-        return "Good"
-    elif grade >= 80:
-        return "Satisfactory"
-    else:
-        return "Needs Improvement"
-
-def add_subject_info(students, name, semester, subject_index, grade, attendance):
+def delete_student(students, name):
     if name in students:
-        if 0 <= subject_index < len(SUBJECTS):
-            subject = SUBJECTS[subject_index]
-            if semester not in students[name]:
-                students[name][semester] = {}
-
-            grade = float(grade)
-            remarks = generate_remarks(grade)
-
-            students[name][semester][subject] = {
-                'grade': grade,
-                'attendance': attendance,
-                'remarks': remarks
-            }
-            print(f"\nSubject {subject} info added to {name} in {semester}.")
-        else:
-            print("\nInvalid subject index.")
+        del students[name]
+        print(f"\nStudent {name} has been deleted.")
     else:
         print(f"\nStudent {name} not found.")
+
+def generate_remarks(college_grade):
+    if college_grade == 1.00:
+        return "Excellent"
+    elif college_grade in (1.25, 1.50):
+        return "Very Good"
+    elif college_grade in (1.75, 2.00):
+        return "Good"
+    elif college_grade in (2.25, 2.50):
+        return "Satisfactory"
+    elif college_grade in (2.75, 3.00):
+        return "Passing"
+    else:
+        return "Failing"
+
+def convert_percent_to_college_grade(final_grade_percent):
+    if final_grade_percent >= 97:
+        return 1.00
+    elif final_grade_percent >= 94:
+        return 1.25
+    elif final_grade_percent >= 91:
+        return 1.50
+    elif final_grade_percent >= 88:
+        return 1.75
+    elif final_grade_percent >= 85:
+        return 2.00
+    elif final_grade_percent >= 82:
+        return 2.25
+    elif final_grade_percent >= 79:
+        return 2.50
+    elif final_grade_percent >= 76:
+        return 2.75
+    elif final_grade_percent >= 75:
+        return 3.00
+    else:
+        return 5.00
+
+def add_subject_info(students, name, semester, subject_index, grade, attendance):
+    subject = SUBJECTS[subject_index]
+    if name not in students:
+        print("\nStudent not found.")
+        return
+
+    if semester not in students[name]:
+        students[name][semester] = {}
+
+    college_grade = convert_percent_to_college_grade(grade)
+    remarks = generate_remarks(college_grade)
+
+    students[name][semester][subject] = {
+        'grade': grade,
+        'attendance': attendance,
+        'college_grade': college_grade,
+        'remarks': remarks
+    }
+
+    print(f"\nSubject '{subject}' info added to {name}.")
+
+def delete_subject(students, name, semester, subject_index):
+    subject = SUBJECTS[subject_index]
+    if name in students and semester in students[name]:
+        if subject in students[name][semester]:
+            del students[name][semester][subject]
+            print(f"\nSubject '{subject}' has been deleted from {name}'s record.")
+        else:
+            print(f"\nSubject '{subject}' not found for {name} in {semester}.")
+    else:
+        print("\nStudent or semester not found.")
 
 def update_subject_info(students, name, semester, subject_index, new_grade, new_attendance):
     if name in students and semester in students[name]:
         subject = SUBJECTS[subject_index]
         if subject in students[name][semester]:
             new_grade = float(new_grade)
-            remarks = generate_remarks(new_grade)
+            college_grade = convert_percent_to_college_grade(new_grade)
+            remarks = generate_remarks(college_grade)
 
             students[name][semester][subject] = {
                 'grade': new_grade,
                 'attendance': new_attendance,
+                'college_grade': college_grade,
                 'remarks': remarks
             }
             print(f"\nSubject {subject} info updated for {name}.")
@@ -82,6 +142,7 @@ def view_student(students, name):
 
                     print(f"   Subject: {subject}")
                     print(f"     Grade: {info['grade']}%")
+                    print(f"College Grade: {info['college_grade']}")
                     print(f"Attendance: {info['attendance']}")
                     print(f"   Remarks: {info['remarks']}")
                     print("-" * 35)
@@ -136,12 +197,15 @@ def main():
         print("Please choose an option:")
         print("1. Add Student")
         print("2. Add Subject Grade and Attendance")
-        print("3. View Student Performance")
-        print("4. View Top Performer")
-        print("5. Update Subject Info")
-        print("6. Search Student by Name")
-        print("7. Exit")
-        option = input("\nEnter your choice (1-7): ").strip()
+        print("3. Delete Student")
+        print("4. Delete Subject from Student")
+        print("5. View Student Performance")
+        print("6. View Top Performer")
+        print("7. View Grading System")
+        print("8. Update Subject Info")
+        print("9. Search Student by Name")
+        print("10. Exit")
+        option = input("\nEnter your choice (1-10): ").strip()
 
         if option == '1':
             name = input("\nEnter student name: ").strip()
@@ -157,20 +221,41 @@ def main():
 
             try:
                 subject_choice = int(input("\nEnter subject number: ")) - 1
-                grade = float(input("\nEnter grade: "))
+                grade = float(input("\nEnter grade (percent): "))
                 attendance = input("\nEnter attendance count: ")
                 add_subject_info(students, name, semester, subject_choice, grade, attendance)
             except ValueError:
                 print("\nInvalid input. Please enter proper values.")
 
         elif option == '3':
+            name = input("\nEnter student name to delete: ").strip()
+            delete_student(students, name)
+
+        elif option == '4':
+            name = input("\nEnter student name: ").strip()
+            semester = input("\nEnter semester: ").strip()
+
+            print("\nAvailable Subjects:")
+            for i, subject in enumerate(SUBJECTS):
+                print(f"{i + 1}. {subject}")
+
+            try:
+                subject_choice = int(input("\nEnter subject number to delete: ")) - 1
+                delete_subject(students, name, semester, subject_choice)
+            except ValueError:
+                print("\nInvalid input.")
+        
+        elif option == '5':
             name = input("\nEnter student name: ").strip()
             view_student(students, name)
 
-        elif option == '4':
+        elif option == '6':
             view_top_performers(students)
+
+        elif option == '7':
+            display_grading_scale()
         
-        elif option == '5':
+        elif option == '8':
             name = input("\nEnter student name: ").strip()
             semester = input("\nEnter semester: ").strip()
 
@@ -180,16 +265,17 @@ def main():
 
             try:
                 subject_choice = int(input("\nEnter subject number to update: ")) - 1
-                grade = float(input("\nEnter new grade: "))
+                grade = float(input("\nEnter new grade (percent): "))
                 attendance = input("\nEnter new attendance: ")
                 update_subject_info(students, name, semester, subject_choice, grade, attendance)
             except ValueError:
                 print("\nInvalid input.")
 
-        elif option == '6':
-            view_top_performers(students)
-            
-        elif option == '7':
+        elif option == '9':
+            keyword = input("\nEnter part of the student name to search: ").strip()
+            search_student_by_name(students, keyword)
+
+        elif option == '10':
             print("\nThank you for using the Student Performance Tracker!")
             break
 
