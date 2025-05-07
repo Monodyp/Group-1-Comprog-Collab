@@ -18,6 +18,14 @@ TEXT_COLOR = Fore.LIGHTWHITE_EX
 HIGHLIGHT_COLOR = Fore.LIGHTYELLOW_EX
 ERROR_COLOR = Fore.LIGHTRED_EX
 
+BORDER_STYLES = {
+    'main': {'top': '═', 'side': '║', 'tl': '╔', 'tr': '╗', 'bl': '╚', 'br': '╝'},
+    'add': {'top': '━', 'side': '┃', 'tl': '┏', 'tr': '┓', 'bl': '┗', 'br': '┛'},
+    'delete': {'top': '─', 'side': '│', 'tl': '┌', 'tr': '┐', 'bl': '└', 'br': '┘'},
+    'view': {'top': '═', 'side': '║', 'tl': '╒', 'tr': '╕', 'bl': '╘', 'br': '╛'},
+    'grading': {'top': '─', 'side': '│', 'tl': '╭', 'tr': '╮', 'bl': '╰', 'br': '╯'}
+}
+
 TITLE = " STEP PROGRAM "
 
 ASCII_ART = [
@@ -37,7 +45,47 @@ SUBJECTS = [
     "Engineering Drawing", "PE"
 ]
 
-
+def rotating_animation(duration=2, message="Processing"):
+    animation_chars = "|/-\\"
+    original_message = message
+    message_length = len(original_message)
+    start_time = time.time()
+    end_time = start_time + duration
+    wave_position = 0
+    
+    while time.time() < end_time:
+        # Create a new animated message each frame
+        current_frame = []
+        for i, char in enumerate(original_message):
+            if char.isalpha():
+                # Calculate distance from wave position (with wrap-around)
+                distance = min(
+                    abs(i - wave_position),
+                    abs(i - (wave_position + message_length)),
+                    abs(i - (wave_position - message_length))
+                )
+                # Highlight characters near the wave
+                if distance <= 3:
+                    current_frame.append(char.upper())
+                else:
+                    current_frame.append(char.lower())
+            else:
+                current_frame.append(char)  # Non-alphabetic characters unchanged
+        
+        # Get current spinner character
+        spinner_char = animation_chars[int((time.time() - start_time) * 8) % 4]
+        
+        # Display the frame
+        sys.stdout.write(f"\r{''.join(current_frame)} {spinner_char}")
+        sys.stdout.flush()
+        
+        # Move the wave forward
+        wave_position = (wave_position + 2) % message_length  # Slower, smoother movement
+        time.sleep(0.08)
+    
+    # Clean up the line when done
+    sys.stdout.write("\r" + " " * (message_length + 2) + "\r")
+    sys.stdout.flush()
 
 def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -138,6 +186,9 @@ def draw_solid_border_with_typewriter(content_lines, title=None, border_color=DA
             print(border_color + '█' * width + Style.RESET_ALL)
 
 def display_grading_scale():
+    clear_console()
+    rotating_animation(2, "Loading up...")
+    clear_console()
     print("\nCollege Grading System:")
     print("------------------------")
     print("1.00 - Excellent")
@@ -150,23 +201,21 @@ def display_grading_scale():
     print("2.75 - Passing")
     print("3.00 - Passing")
     print("5.00 - Failed")
+    time.sleep(5)
 
 def add_student(students, name):
-    for i in range(20, 0, -1):
-        clear_console()
-        print(Fore.BLUE + Style.BRIGHT + f"Checking{'.' * i}")
-        time.sleep(0.05)
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     if name not in students:
-        for i in range(20, 0, -1):
-            clear_console()
-            print(Fore.BLUE + Style.BRIGHT + f"Adding Student Name{'.' * i}")
-            time.sleep(0.05)
+        clear_console()
+        rotating_animation(2, f"Adding {name} to the list...")
         clear_console()
         students[name] = {}
-        print(f"\nStudent {name} added successfully!")
+        print(f"\n{name} has been added successfully!")
         time.sleep(2)
     else:
-        print(f"\nStudent {name} already exists.")
+        print(f"\n{name} already exists. ")
         time.sleep(2)
 
 def add_subject_grade_and_attendance():
@@ -176,13 +225,15 @@ def add_subject_grade_and_attendance():
     for i, subject in enumerate(SUBJECTS):
                 print(f"{i + 1}. {subject}")
                 print("\nInvalid input. Please enter proper values.")
+                time.sleep(2)
 
 def delete_student(students, name):
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     if name in students:
-        for i in range(20, 0, -1):
-            clear_console()
-            print(Fore.BLUE + Style.BRIGHT + f"Removing Student{'.' * i}")
-            time.sleep(0.05)
+        clear_console()
+        rotating_animation(2, f"Removing {name} from the list...")
         clear_console()
         del students[name]
         print(f"\nStudent {name} has been deleted.")
@@ -229,10 +280,9 @@ def convert_percent_to_college_grade(final_grade_percent):
 
 def add_subject_info(students, name, semester, subject_index, grade, attendance):
     subject = SUBJECTS[subject_index]
-    for i in range(20, 0, -1):
-        clear_console()
-        print(Fore.BLUE + Style.BRIGHT + f"Checking{'.' * i}")
-        time.sleep(0.05)
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     if name not in students:
         print("\nStudent not found.")
         time.sleep(2)
@@ -250,25 +300,22 @@ def add_subject_info(students, name, semester, subject_index, grade, attendance)
         'college_grade': college_grade,
         'remarks': remarks
     }
-    for i in range(20, 0, -1):
-        clear_console()
-        print(Fore.BLUE + Style.BRIGHT + f"Adding Subject info{'.' * i}")
-        time.sleep(0.05)
+    clear_console()
+    rotating_animation(2, f"Adding {subject} to {name}'s curriculum...")
+    clear_console()
     print(f"\nSubject '{subject}' info added to {name}.")
     time.sleep(2)
 
 def delete_subject(students, name, semester, subject_index):
     subject = SUBJECTS[subject_index]
-    for i in range(20, 0, -1):
-                clear_console()
-                print(Fore.BLUE + Style.BRIGHT + f"Checking{'.' * i}")
-                time.sleep(0.05)
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     if name in students and semester in students[name]:
         if subject in students[name][semester]:
-            for i in range(20, 0, -1):
-                clear_console()
-                print(Fore.BLUE + Style.BRIGHT + f"Removing Subject{'.' * i}")
-                time.sleep(0.05)
+            clear_console()
+            rotating_animation(2, "Removing Subject...")
+            clear_console()
             del students[name][semester][subject]
             print(f"\nSubject '{subject}' has been deleted from {name}'s record.")
             time.sleep(2)
@@ -280,9 +327,15 @@ def delete_subject(students, name, semester, subject_index):
         time.sleep(2)
 
 def update_subject_info(students, name, semester, subject_index, new_grade, new_attendance):
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     if name in students and semester in students[name]:
         subject = SUBJECTS[subject_index]
         if subject in students[name][semester]:
+            clear_console()
+            rotating_animation(2, "Adding new subject info...")
+            clear_console()
             new_grade = float(new_grade)
             college_grade = convert_percent_to_college_grade(new_grade)
             remarks = generate_remarks(college_grade)
@@ -294,17 +347,22 @@ def update_subject_info(students, name, semester, subject_index, new_grade, new_
                 'remarks': remarks
             }
             print(f"\nSubject {subject} info updated for {name}.")
+            time.sleep(2)
         else:
             print(f"\nSubject {subject} not found for {name} in {semester}.")
+            time.sleep(2)
     else:
         print("\nStudent or semester not found.")
+        time.sleep(2)
 
 def view_student(students, name):
-    for i in range(20, 0, -1):
-        clear_console()
-        print(Fore.BLUE + Style.BRIGHT + f"Checking{'.' * i}")
-        time.sleep(0.05)
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     if name in students:
+        clear_console()
+        rotating_animation(2, f"Loading up {name}'s performance...")
+        clear_console()
         print(f"\nPerformance for {name}:")
         time.sleep(2)
         if not students[name]:
@@ -330,26 +388,40 @@ def view_student(students, name):
                     print(f"Attendance: {info['attendance']}")
                     print(f"   Remarks: {info['remarks']}")
                     print("-" * 35)
-                    time.sleep(5)
+                    time.sleep(2)
 
             if subject_count > 0:
                 avg = total_grade / subject_count
                 print(f"\nAverage Grade across all subjects: {avg:.2f}")
+                time.sleep(2)
             else:
                 print("\nNo valid grades to compute an average.")
+                time.sleep(2)
     else:
         print(f"\nStudent {name} not found.")
+        time.sleep(5)
 
 def search_student_by_name(students, keyword):
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     matches = [name for name in students if keyword.lower() in name.lower()]
     if matches:
+        clear_console()
+        rotating_animation(2, "Pulling up Matches...")
+        clear_console()
         print("\nMatching Students:")
         for name in matches:
             print(f" - {name}")
+            time.sleep(2)
     else:
         print("\nNo matching students found.")
+        time.sleep(2)
 
 def view_top_performers(students):
+    clear_console()
+    rotating_animation(2, "Checking...")
+    clear_console()
     top_students = []
 
     for name, semesters in students.items():
@@ -368,11 +440,16 @@ def view_top_performers(students):
                 top_students.append((name, avg))
 
     if top_students:
+        clear_console()
+        rotating_animation(2, "Loading up top students...")
+        clear_console()
         print("\nTop Performers (With an Average of 90 and above):")
         for name, avg in sorted(top_students, key=lambda x: x[1], reverse=True):
             print(f" - {name}: {avg:.2f}")
+            time.sleep(5)
     else:
         print("\nNo students have an average of 90 or above.")
+        time.sleep(5)
 
 def exit_program():
     clear_console()
@@ -380,7 +457,7 @@ def exit_program():
 
 def show_start_menu():
     clear_console()
-
+    rotating_animation(2, "Booting Up the Step Program...")
     # Celtic line decorations
     celtic_line = "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"
     subtext = "Student Tracker For Engineering Performance"
@@ -409,27 +486,25 @@ def show_start_menu():
 
 #Transition effect
     # Retro transition effect
-    for i in range(20, 0, -1):
-        clear_console()
-        print(Fore.BLUE + Style.BRIGHT + f"Initializing system{'.' * i}")
-        time.sleep(0.1)
+    clear_console()
+    rotating_animation(2, "Loading the Main Menu...")
 
 def show_main_menu():
     clear_console()
 
     menu_lines = [
-        TEXT_COLOR + Style.BRIGHT + "╔════════════════════════════════════════════════╗",
-        TEXT_COLOR + "║ " + Fore.CYAN + "1. Add New Student                 " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "2. Add Subject Grade and Attendance" + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "3. Delete Student                  " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "4. Delete Subject from Student     " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "5. View Student Performance        " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "6. View Top Performer              " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "7. View Grading System             " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "8. Update Subject Info             " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.CYAN + "9. Search Student by Name          " + TEXT_COLOR + "║",
-        TEXT_COLOR + "║ " + Fore.RED + "0. Exit Program                    " + TEXT_COLOR + "║",
-        TEXT_COLOR + "╚════════════════════════════════════════════════╝"
+        TEXT_COLOR + Style.BRIGHT + "╔═════════════════════════════════════╗",
+        TEXT_COLOR + "║ " + Fore.CYAN + "1. Add New Student                 " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "2. Add Subject Grade and Attendance" + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "3. Delete Student                  " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "4. Delete Subject from Student     " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "5. View Student Performance        " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "6. View Top Performer              " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "7. View Grading System             " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "8. Update Subject Info             " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.CYAN + "9. Search Student by Name          " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "║ " + Fore.RED +  "0. Exit Program                    " + TEXT_COLOR + " ║",
+        TEXT_COLOR + "╚═════════════════════════════════════╝"
     ]
 
     width, height = build_frame_dimensions(menu_lines)
@@ -454,6 +529,28 @@ def show_main_menu():
         except ValueError:
             typewriter_print(ERROR_COLOR + "Please enter a number!", delay=0.01)
 
+def draw_dynamic_border(content_lines, title=None, border_style='main'):
+    width, height = build_frame_dimensions(content_lines)
+    style = BORDER_STYLES.get(border_style, BORDER_STYLES['main'])
+    
+    # Top border
+    top_border = style['tl'] + style['top'] * (width - 2) + style['tr']
+    print(DARK_GREEN + top_border)
+    
+    # Content area
+    inner_width = width - 2 * BORDER_THICKNESS_SIDE
+    for line in content_lines:
+        clean_line = strip_ansi(line)
+        padding = (inner_width - len(clean_line)) // 2
+        centered_line = ' ' * padding + line + ' ' * (inner_width - len(clean_line) - padding)
+        print(DARK_GREEN + style['side'] + ' ' * BORDER_THICKNESS_SIDE + 
+              Style.RESET_ALL + centered_line + 
+              DARK_GREEN + ' ' * BORDER_THICKNESS_SIDE + style['side'])
+        
+     # Bottom border
+    bottom_border = style['bl'] + style['top'] * (width - 2) + style['br']
+    print(DARK_GREEN + bottom_border)
+
 def main():
     students = {}
     show_start_menu()
@@ -462,12 +559,19 @@ def main():
 
         if choice == 1:
             clear_console()
+            rotating_animation(2, "Preparing to add a student...")
+            clear_console()
+            draw_dynamic_border(["ADD NEW STUDENT"], border_style='add')
             name = input("\nEnter student name: ").strip()
             add_student(students, name)
         elif choice == 2:
             clear_console()
+            rotating_animation(2, "Preparing to add grades and attendance...")
+            draw_dynamic_border(["ADD YOUR SUBJECT GRADE AND ATTENDANCE"], border_style='add')
             name = input("\nEnter student name: ").strip()
             semester = input("\nEnter semester (Semester 1 or 2): ").strip()
+            clear_console()
+            rotating_animation(2, f"Getting list of {name}'s curriculum ")
             clear_console()
             print("\nAvailable Subjects:")
             for i, subject in enumerate(SUBJECTS):
@@ -481,13 +585,16 @@ def main():
                 print("\nInvalid input. Please enter proper values.")
         elif choice == 3:
             clear_console()
+            rotating_animation(2, "Let's go ahead and delete a student...")
+            clear_console()
             name = input("\nEnter student name: ").strip()
             delete_student(students, name)
         elif choice == 4:
             clear_console()
+            rotating_animation(2, "Let's go ahead and choose a student first...")
             name = input("\nEnter student name: ").strip()
             semester = input("\nEnter semester: ").strip()
-
+            rotating_animation(2, f"Let's remove a subject from {name} ...")
             print("\nAvailable Subjects:")
             for i, subject in enumerate(SUBJECTS):
                 print(f"{i + 1}. {subject}")
@@ -499,6 +606,8 @@ def main():
                 print("\nInvalid input.")
         elif choice == 5:
             clear_console()
+            rotating_animation(2, "Let's choose your student...")
+            clear_console()
             name = input("\nEnter student name: ").strip()
             view_student(students, name)
         elif choice == 6:
@@ -509,9 +618,14 @@ def main():
             display_grading_scale()
         elif choice == 8:
             clear_console()
+            clear_console()
+            rotating_animation(2, "Let's pick a student first...")
+            clear_console()
             name = input("\nEnter student name: ").strip()
             semester = input("\nEnter semester: ").strip()
-
+            clear_console()
+            rotating_animation(2, f"Loading up {name}'s curriculum...")
+            clear_console()
             print("\nAvailable Subjects:")
             for i, subject in enumerate(SUBJECTS):
                 print(f"{i + 1}. {subject}")
@@ -524,6 +638,9 @@ def main():
             except ValueError:
                 print("\nInvalid input.")
         elif choice == 9:
+            clear_console()
+            rotating_animation(2, "Let's find your student...")
+            clear_console()
             keyword = input("\nEnter part of the student name to search: ").strip()
             search_student_by_name(students, keyword)
         elif choice == 0:
